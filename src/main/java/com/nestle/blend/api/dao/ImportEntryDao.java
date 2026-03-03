@@ -70,7 +70,7 @@ public class ImportEntryDao {
                     "   c.name as category_name," +
                     "   t.seq_no," +
                     "   t.full_name," +
-                    "   t.email," +
+                    "   t.email::text," +
                     "   t.zone," +
                     "   t.reward," +
                     "   t.purchased_at," +
@@ -97,6 +97,7 @@ public class ImportEntryDao {
                 UUID catId = (UUID) map.get("category_id");
                 Timestamp sentAt = (Timestamp) map.get("email_sent_at");
                 LocalDateTime emailSentAt = sentAt != null ? sentAt.toLocalDateTime() : null;
+                java.sql.Date purchasedAt = (java.sql.Date) map.get("purchased_at");
                 entity.setId(id);
                 entity.setCategoryId(catId);
                 entity.setCategoryName((String) map.get("category_name"));
@@ -105,7 +106,7 @@ public class ImportEntryDao {
                 entity.setEmail((String) map.get("email"));
                 entity.setZone((String) map.get("zone"));
                 entity.setReward((String) map.get("reward"));
-                entity.setPurchasedAt((LocalDate) map.get("purchased_at"));
+                entity.setPurchasedAt(purchasedAt != null ? purchasedAt.toLocalDate() : null);
                 entity.setEmailStatus((String) map.get("email_status"));
                 entity.setEmailError((String) map.get("email_error"));
                 entity.setEmailSentAt(emailSentAt);

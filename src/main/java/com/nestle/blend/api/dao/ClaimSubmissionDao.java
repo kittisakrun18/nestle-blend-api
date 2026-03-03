@@ -6,6 +6,7 @@ import com.nestle.blend.api.utils.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -21,6 +22,11 @@ import java.util.UUID;
 @Repository
 public class ClaimSubmissionDao {
     private Logger log = LogManager.getLogger(this.getClass());
+
+    @Value("${nestle-api.base-url}")
+    private String appBaseUrl;
+    @Value("${app.api.path.prefix}")
+    private String prefixPath;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -67,12 +73,13 @@ public class ClaimSubmissionDao {
             sql.append(" select " +
                     "   t.id," +
                     "   t.import_entry_id," +
-                    "   c.name as category_name," +
-                    "   t.seq_no," +
+                    "   c.name as category_name, " +
+                    "   e.seq_no," +
                     "   t.full_name," +
-                    "   e.email," +
+                    "   e.email::text," +
                     "   t.phone," +
                     "   t.age_u20," +
+                    "   e.zone," +
                     "   t.id_card_file_path," +
                     "   t.receipt_file_path, " +
                     "   t.submitted_at ");
@@ -96,6 +103,16 @@ public class ClaimSubmissionDao {
                 UUID importEntryId = (UUID) map.get("import_entry_id");
                 Timestamp submittedAt = (Timestamp) map.get("submitted_at");
                 LocalDateTime localDtSubmittedAt = submittedAt != null ? submittedAt.toLocalDateTime() : null;
+
+                String idCardFilePath = (String) map.get("id_card_file_path");
+                String receiptFilePath = (String) map.get("receipt_file_path");
+                if(StringUtils.checkNotEmpty(idCardFilePath)){
+                    idCardFilePath = appBaseUrl + prefixPath + "/resource/" + StringUtils.base64Encode(idCardFilePath);
+                }
+                if(StringUtils.checkNotEmpty(receiptFilePath)){
+                    receiptFilePath = appBaseUrl + prefixPath + "/resource/" + StringUtils.base64Encode(receiptFilePath);
+                }
+
                 entity.setId(id);
                 entity.setImportEntryId(importEntryId);
                 entity.setCategoryName((String) map.get("category_name"));
@@ -104,8 +121,9 @@ public class ClaimSubmissionDao {
                 entity.setEmail((String) map.get("email"));
                 entity.setPhone((String) map.get("phone"));
                 entity.setAgeU20((String) map.get("age_u20"));
-                entity.setIdCardFilePath((String) map.get("id_card_file_path"));
-                entity.setReceiptFilePath((String) map.get("receipt_file_path"));
+                entity.setIdCardFilePath(idCardFilePath);
+                entity.setReceiptFilePath(receiptFilePath);
+                entity.setZone((String) map.get("zone"));
                 entity.setSubmittedAt(localDtSubmittedAt);
                 entities.add(entity);
             }

@@ -20,6 +20,7 @@ public class ClaimSubmissionDto {
     private String email;
     private String phone;
     private String ageU20;
+    private String zone;
     private String idCardFilePath;
     private String receiptFilePath;
     private LocalDateTime submittedAt;
