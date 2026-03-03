@@ -138,10 +138,10 @@ public class ClaimSubmissionService {
                 String idCardFilePath = rs.getString("id_card_file_path");
                 String receiptFilePath = rs.getString("receipt_file_path");
                 if(StringUtils.checkNotEmpty(idCardFilePath)){
-                    idCardFilePath = appBaseUrl + prefixPath + "/resource?file=" + StringUtils.base64Encode(idCardFilePath);
+                    idCardFilePath = appBaseUrl + prefixPath + "/resource/download?file=" + StringUtils.base64Encode(idCardFilePath);
                 }
                 if(StringUtils.checkNotEmpty(receiptFilePath)){
-                    receiptFilePath = appBaseUrl + prefixPath + "/resource?file=" + StringUtils.base64Encode(receiptFilePath);
+                    receiptFilePath = appBaseUrl + prefixPath + "/resource/download?file=" + StringUtils.base64Encode(receiptFilePath);
                 }
 
                 this.helper.createCell(sheet, row, columnCount++, no.getAndIncrement(), style);

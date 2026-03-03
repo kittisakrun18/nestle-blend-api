@@ -29,6 +29,7 @@ public class SecurityConfig {
                                 "/get-version",
                                 "/gen-password",
                                 "/api/v1/auth/**",
+                                "/api/v1/resource/**",
                                 "/api/v1/post/**"
                         ).permitAll()
                         .requestMatchers("/api/v1/**").authenticated()

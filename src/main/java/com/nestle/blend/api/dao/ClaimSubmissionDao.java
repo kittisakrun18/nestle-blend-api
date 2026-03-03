@@ -107,10 +107,10 @@ public class ClaimSubmissionDao {
                 String idCardFilePath = (String) map.get("id_card_file_path");
                 String receiptFilePath = (String) map.get("receipt_file_path");
                 if(StringUtils.checkNotEmpty(idCardFilePath)){
-                    idCardFilePath = appBaseUrl + prefixPath + "/resource?file=" + StringUtils.base64Encode(idCardFilePath);
+                    idCardFilePath = appBaseUrl + prefixPath + "/resource/download?file=" + StringUtils.base64Encode(idCardFilePath);
                 }
                 if(StringUtils.checkNotEmpty(receiptFilePath)){
-                    receiptFilePath = appBaseUrl + prefixPath + "/resource?file=" + StringUtils.base64Encode(receiptFilePath);
+                    receiptFilePath = appBaseUrl + prefixPath + "/resource/download?file=" + StringUtils.base64Encode(receiptFilePath);
                 }
 
                 entity.setId(id);
