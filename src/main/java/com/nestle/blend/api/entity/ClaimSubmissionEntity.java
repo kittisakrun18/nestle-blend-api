@@ -3,7 +3,7 @@ package com.nestle.blend.api.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -30,21 +30,24 @@ public class ClaimSubmissionEntity {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @Column(name = "id_card_file_key", nullable = false)
-    private String idCardFileKey;
+    @Column(name = "age_u20")
+    private String ageU20;
 
-    @Column(name = "parent_id_card_file_key")
-    private String parentIdCardFileKey;
+    @Column(name = "id_card_file_path", nullable = false)
+    private String idCardFilePath;
 
-    @Column(name = "receipt_file_key", nullable = false)
-    private String receiptFileKey;
+    @Column(name = "receipt_file_path", nullable = false)
+    private String receiptFilePath;
+
+    @Column(name = "parent_file_path", nullable = false)
+    private String parentFilePath;
 
     @Column(name = "submitted_at", nullable = false)
-    private OffsetDateTime submittedAt;
+    private LocalDateTime submittedAt;
 
     @Column(name = "created_at", insertable = false, updatable = false)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", insertable = false, updatable = false)
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 }

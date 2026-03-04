@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -50,6 +50,7 @@ public class ImportEntryEntity {
     @Column(name = "purchased_at")
     private LocalDate purchasedAt;
 
+    @Builder.Default
     @Column(name = "email_status", nullable = false)
     private String emailStatus = "PENDING";
 
@@ -57,27 +58,27 @@ public class ImportEntryEntity {
     private String emailError;
 
     @Column(name = "email_sent_at")
-    private OffsetDateTime emailSentAt;
+    private LocalDateTime emailSentAt;
 
     @Column(name = "token_hash", nullable = false, unique = true)
     private String tokenHash;
 
     @Column(name = "issued_at", nullable = false)
-    private OffsetDateTime issuedAt;
+    private LocalDateTime issuedAt;
 
     @Column(name = "expires_at", nullable = false)
-    private OffsetDateTime expiresAt;
+    private LocalDateTime expiresAt;
 
     @Column(name = "used_at")
-    private OffsetDateTime usedAt;
+    private LocalDateTime usedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private AdminUserEntity createdBy;
 
     @Column(name = "created_at", insertable = false, updatable = false)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", insertable = false, updatable = false)
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 }

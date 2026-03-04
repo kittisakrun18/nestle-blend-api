@@ -7,9 +7,9 @@ import com.nestle.blend.api.entity.ImportEntryEntity;
 import com.nestle.blend.api.entity.ImportEntryFailEntity;
 import com.nestle.blend.api.repository.AdminUserRepository;
 import com.nestle.blend.api.repository.CategoryRepository;
-import com.nestle.blend.api.repository.ImportEntryRepository;
 import com.nestle.blend.api.repository.ImportEntryFailRepository;
-import jakarta.transaction.Transactional;
+import com.nestle.blend.api.repository.ImportEntryRepository;
+import com.nestle.blend.api.service.ImportEntryEmailService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +20,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -39,6 +38,8 @@ public class ImportExcelJobRunner {
     private final ImportEntryFailRepository importEntryFailRepository;
     private final AdminUserRepository adminUserRepository;
 
+    private final ImportEntryEmailService importEntryEmailService;
+
     @Value("${app.claim.link.ttl-hours:168}")
     private int linkTtlHours; // default 7 days
 
@@ -49,15 +50,16 @@ public class ImportExcelJobRunner {
     public ImportExcelJobRunner(CategoryRepository categoryRepository,
                                ImportEntryRepository importEntryRepository,
                                ImportEntryFailRepository importEntryFailRepository,
-                               AdminUserRepository adminUserRepository) {
+                               AdminUserRepository adminUserRepository,
+                               ImportEntryEmailService importEntryEmailService) {
         this.categoryRepository = categoryRepository;
         this.importEntryRepository = importEntryRepository;
         this.importEntryFailRepository = importEntryFailRepository;
         this.adminUserRepository = adminUserRepository;
+        this.importEntryEmailService = importEntryEmailService;
     }
 
     @Async("importExecutor")
-    @Transactional
     public void runJobAsync(String jobId, Path filePath, UUID adminUserId, Map<String, ImportJobStatusRespDto> jobs) {
         ImportJobStatusRespDto st = jobs.get(jobId);
         if (st == null) return;
@@ -194,7 +196,7 @@ public class ImportExcelJobRunner {
 									.reward(reward)
 									.purchasedAtRaw(purchasedAtRaw)
 									.reason(String.join(" | ", rowErrors))
-                                    .createdAt(Instant.now())
+                                    .createdAt(LocalDateTime.now())
 									.build());
 							failedRows++;
 							skipped++;
@@ -220,7 +222,7 @@ public class ImportExcelJobRunner {
 									.reward(reward)
 									.purchasedAtRaw(purchasedAtRaw)
 									.reason("duplicate email")
-                                    .createdAt(Instant.now())
+                                    .createdAt(LocalDateTime.now())
 									.build());
 							failedRows++;
 							skipped++;
@@ -232,8 +234,8 @@ public class ImportExcelJobRunner {
                         String rawToken = UUID.randomUUID() + "-" + UUID.randomUUID();
                         String tokenHash = sha256Hex(rawToken);
 
-						OffsetDateTime now = OffsetDateTime.now(zoneId);
-                        OffsetDateTime expires = now.plusHours(linkTtlHours);
+                        LocalDateTime expires = this.mappingExpireDt();
+                        LocalDateTime now = LocalDateTime.now(zoneId);
 
                         ImportEntryEntity entity = ImportEntryEntity.builder()
                                 .category(category)
@@ -251,8 +253,13 @@ public class ImportExcelJobRunner {
                                 .build();
 
                         try {
-                            importEntryRepository.save(entity);
+                            ImportEntryEntity saved = importEntryRepository.save(entity);
                             inserted++;
+
+                            try {
+                                // send mail after import (prevent duplicate via emailStatus)
+                                importEntryEmailService.sendAfterImport(saved.getId());
+                            } catch (Exception ex){}
                         } catch (Exception ex) {
 							// e.g. unique violation seq_no/email/token
 							importEntryFailRepository.save(ImportEntryFailEntity.builder()
@@ -268,7 +275,7 @@ public class ImportExcelJobRunner {
 									.reward(reward)
 									.purchasedAtRaw(purchasedAtRaw)
 									.reason("db insert failed: " + safeMsg(ex))
-                                    .createdAt(Instant.now())
+                                    .createdAt(LocalDateTime.now())
 									.build());
 							failedRows++;
 							skipped++;
@@ -363,5 +370,16 @@ public class ImportExcelJobRunner {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private LocalDateTime mappingExpireDt() {
+        LocalDateTime result = LocalDateTime.of(2026, 3, 14, 12, 0);
+        LocalDateTime currentDt = LocalDateTime.now();
+        LocalDateTime round2Dt = LocalDateTime.of(2026, 3, 13, 17, 0);
+        if (currentDt.isBefore(round2Dt)) {
+            result = LocalDateTime.of(2026, 3, 13, 17, 0);
+        }
+
+        return result;
     }
 }

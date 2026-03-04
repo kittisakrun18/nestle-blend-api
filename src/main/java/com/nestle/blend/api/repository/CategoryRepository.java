@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID> {
     Optional<CategoryEntity> findByNameIgnoreCase(String name);
+    CategoryEntity findFirstById(UUID id);
 }

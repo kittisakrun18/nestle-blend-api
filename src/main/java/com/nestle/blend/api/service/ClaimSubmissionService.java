@@ -94,6 +94,7 @@ public class ClaimSubmissionService {
         this.helper.createCell(sheet, row, index++, "รางวัลที่ได้รับ", style);
         this.helper.createCell(sheet, row, index++, "สำเนาบัตร", style);
         this.helper.createCell(sheet, row, index++, "สำเนาใบเสร็จ", style);
+        this.helper.createCell(sheet, row, index++, "สำเนาบัตรผู้ปกครอง", style);
     }
 
     private void writeDataLines(String search, UUID categoryId, LocalDate startDate, LocalDate endDate) throws Exception {
@@ -116,6 +117,7 @@ public class ClaimSubmissionService {
                 "   to_char(e.purchased_at, 'DD/MM/YYYY') as purchased_at," +
                 "   t.id_card_file_path," +
                 "   t.receipt_file_path, " +
+                "   t.parent_file_path, " +
                 "   e.reward ");
         sql.append(this.claimSubmissionDao.query(params, search, categoryId, startDate, endDate));
         sql.append(" order by t.submitted_at desc ");
@@ -131,17 +133,22 @@ public class ClaimSubmissionService {
             }
             return ps;
         }, (ResultSet rs) -> {
+            String mainUrl = appBaseUrl + prefixPath + "/resource/download?file=";
             while (rs.next()) {
                 Row row = sheet.createRow(rowCount.getAndIncrement());
                 int columnCount = 0;
 
                 String idCardFilePath = rs.getString("id_card_file_path");
                 String receiptFilePath = rs.getString("receipt_file_path");
+                String parentFilePath = rs.getString("parent_file_path");
                 if(StringUtils.checkNotEmpty(idCardFilePath)){
-                    idCardFilePath = appBaseUrl + prefixPath + "/resource/download?file=" + StringUtils.base64Encode(idCardFilePath);
+                    idCardFilePath = mainUrl + StringUtils.base64Encode(idCardFilePath);
                 }
                 if(StringUtils.checkNotEmpty(receiptFilePath)){
-                    receiptFilePath = appBaseUrl + prefixPath + "/resource/download?file=" + StringUtils.base64Encode(receiptFilePath);
+                    receiptFilePath = mainUrl + StringUtils.base64Encode(receiptFilePath);
+                }
+                if(StringUtils.checkNotEmpty(parentFilePath)){
+                    parentFilePath = mainUrl + StringUtils.base64Encode(parentFilePath);
                 }
 
                 this.helper.createCell(sheet, row, columnCount++, no.getAndIncrement(), style);
@@ -157,6 +164,7 @@ public class ClaimSubmissionService {
                 this.helper.createCell(sheet, row, columnCount++, rs.getString("reward"), style);
                 this.helper.createCell(sheet, row, columnCount++, idCardFilePath, style);
                 this.helper.createCell(sheet, row, columnCount++, receiptFilePath, style);
+                this.helper.createCell(sheet, row, columnCount++, parentFilePath, style);
             }
             return null;
         });
@@ -175,5 +183,6 @@ public class ClaimSubmissionService {
         sheet.setColumnWidth(columnIndex++, 40 * 256); // รางวัลที่ได้รับ
         sheet.setColumnWidth(columnIndex++, 40 * 256); // สำเนาบัตร
         sheet.setColumnWidth(columnIndex++, 40 * 256); // สำเนาใบเสร็จ
+        sheet.setColumnWidth(columnIndex++, 40 * 256); // สำเนาบัตรผู้ปกครอง
     }
 }

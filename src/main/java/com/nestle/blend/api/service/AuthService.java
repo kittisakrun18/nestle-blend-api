@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -64,7 +64,7 @@ public class AuthService {
         }
 
         // update last login
-        admin.setLastLoginAt(OffsetDateTime.now());
+        admin.setLastLoginAt(LocalDateTime.now());
         adminUserRepository.save(admin);
 
         String access = jwtService.createAccessToken(admin.getId().toString(), admin.getUsername(), "ADMIN");
@@ -99,7 +99,7 @@ public class AuthService {
         if (tokenEntity.getRevokedAt() != null) {
             throw new CustomException(401, "REFRESH_TOKEN_REVOKED");
         }
-        if (tokenEntity.getExpiresAt().isBefore(OffsetDateTime.now())) {
+        if (tokenEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new CustomException(401, "REFRESH_TOKEN_EXPIRED");
         }
 
@@ -109,7 +109,7 @@ public class AuthService {
         }
 
         // rotate: revoke old and create new
-        tokenEntity.setRevokedAt(OffsetDateTime.now());
+        tokenEntity.setRevokedAt(LocalDateTime.now());
         adminRefreshTokenRepository.save(tokenEntity);
 
         String newRefreshRaw = newRefreshTokenString();
@@ -135,7 +135,7 @@ public class AuthService {
         String tokenHash = HashUtil.sha256Hex(refreshTokenRaw);
         adminRefreshTokenRepository.findByTokenHash(tokenHash).ifPresent(t -> {
             if (t.getRevokedAt() == null) {
-                t.setRevokedAt(OffsetDateTime.now());
+                t.setRevokedAt(LocalDateTime.now());
                 adminRefreshTokenRepository.save(t);
             }
         });
@@ -186,8 +186,8 @@ public class AuthService {
     // =========================
 
     private void saveRefreshToken(AdminUserEntity admin, String refreshTokenRaw, String ip, String userAgent) {
-        OffsetDateTime now = OffsetDateTime.now();
-        OffsetDateTime exp = now.plusDays(refreshTtlDays);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime exp = now.plusDays(refreshTtlDays);
 
         AdminRefreshTokenEntity token = AdminRefreshTokenEntity.builder()
                 .adminUser(admin)

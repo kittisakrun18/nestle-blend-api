@@ -3,8 +3,8 @@ package com.nestle.blend.api.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -56,6 +56,7 @@ public class ImportEntryFailEntity {
     @Column(name = "reason", nullable = false, columnDefinition = "text")
     private String reason;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt = Instant.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

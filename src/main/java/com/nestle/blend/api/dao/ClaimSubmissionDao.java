@@ -82,6 +82,7 @@ public class ClaimSubmissionDao {
                     "   e.zone," +
                     "   t.id_card_file_path," +
                     "   t.receipt_file_path, " +
+                    "   t.parent_file_path, " +
                     "   t.submitted_at ");
             sql.append(this.query(params, search, categoryId, startDate, endDate));
             sql.append(" order by t.submitted_at desc ");
@@ -97,6 +98,7 @@ public class ClaimSubmissionDao {
             this.log.info("----- End Query -----");
             List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql.toString(), params.toArray());
             ClaimSubmissionDto entity;
+            String mainUrl = appBaseUrl + prefixPath + "/resource/download?file=";
             for (Map<String, Object> map : maps) {
                 entity = new ClaimSubmissionDto();
                 UUID id = (UUID) map.get("id");
@@ -106,11 +108,15 @@ public class ClaimSubmissionDao {
 
                 String idCardFilePath = (String) map.get("id_card_file_path");
                 String receiptFilePath = (String) map.get("receipt_file_path");
+                String parentFilePath = (String) map.get("parent_file_path");
                 if(StringUtils.checkNotEmpty(idCardFilePath)){
-                    idCardFilePath = appBaseUrl + prefixPath + "/resource/download?file=" + StringUtils.base64Encode(idCardFilePath);
+                    idCardFilePath = mainUrl + StringUtils.base64Encode(idCardFilePath);
                 }
                 if(StringUtils.checkNotEmpty(receiptFilePath)){
-                    receiptFilePath = appBaseUrl + prefixPath + "/resource/download?file=" + StringUtils.base64Encode(receiptFilePath);
+                    receiptFilePath = mainUrl + StringUtils.base64Encode(receiptFilePath);
+                }
+                if(StringUtils.checkNotEmpty(parentFilePath)){
+                    parentFilePath = mainUrl + StringUtils.base64Encode(parentFilePath);
                 }
 
                 entity.setId(id);
@@ -123,6 +129,7 @@ public class ClaimSubmissionDao {
                 entity.setAgeU20((String) map.get("age_u20"));
                 entity.setIdCardFilePath(idCardFilePath);
                 entity.setReceiptFilePath(receiptFilePath);
+                entity.setParentFilePath(parentFilePath);
                 entity.setZone((String) map.get("zone"));
                 entity.setSubmittedAt(localDtSubmittedAt);
                 entities.add(entity);

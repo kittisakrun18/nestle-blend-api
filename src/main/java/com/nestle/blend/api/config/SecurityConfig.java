@@ -30,7 +30,7 @@ public class SecurityConfig {
                                 "/gen-password",
                                 "/api/v1/auth/**",
                                 "/api/v1/resource/**",
-                                "/api/v1/post/**"
+                                "/api/v1/claim/**"
                         ).permitAll()
                         .requestMatchers("/api/v1/**").authenticated()
                 )

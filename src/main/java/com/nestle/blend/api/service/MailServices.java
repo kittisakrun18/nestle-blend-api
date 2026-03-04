@@ -9,6 +9,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class MailServices {
 
     public void sendMail(MailVo mail) throws MessagingException {
         MimeMessage msg = this.javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(msg, false);
+        MimeMessageHelper helper = new MimeMessageHelper(msg, true);
 
         String[] recipients = new String[mail.getRecipients().size()];
         int i = 0;
@@ -49,6 +50,11 @@ public class MailServices {
 
         helper.setSubject(mail.getSubject());
         helper.setText(mail.getMessage(), mail.isHtml());
+
+        helper.addInline(
+                "logo",
+                new ClassPathResource("templates/logo.png")
+        );
 
         this.javaMailSender.send(msg);
     }

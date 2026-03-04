@@ -23,5 +23,6 @@ public class ClaimSubmissionDto {
     private String zone;
     private String idCardFilePath;
     private String receiptFilePath;
+    private String parentFilePath;
     private LocalDateTime submittedAt;
 }

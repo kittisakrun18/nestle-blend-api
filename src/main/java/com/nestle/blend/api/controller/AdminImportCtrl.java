@@ -4,12 +4,14 @@ import com.nestle.blend.api.dto.BaseResponseDto;
 import com.nestle.blend.api.dto.ImportEntryDto;
 import com.nestle.blend.api.dto.ImportEntryFailDto;
 import com.nestle.blend.api.dto.PaginationRespDto;
-import com.nestle.blend.api.dto.admin.ImportJobStatusRespDto;
 import com.nestle.blend.api.dto.admin.ImportJobSubmitRespDto;
 import com.nestle.blend.api.exception.CustomException;
+import com.nestle.blend.api.service.ImportEntryEmailService;
 import com.nestle.blend.api.service.ImportEntryFailService;
 import com.nestle.blend.api.service.ImportEntryService;
 import com.nestle.blend.api.service.job.ImportExcelJobService;
+import com.nestle.blend.api.utils.MessageUtils;
+import com.nestle.blend.api.utils.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
@@ -34,11 +36,15 @@ public class AdminImportCtrl extends ABaseCtrl {
     private Logger log = LogManager.getLogger(this.getClass());
 
     @Autowired
+    private MessageUtils messageUtils;
+    @Autowired
     private ImportExcelJobService importExcelJobService;
     @Autowired
     private ImportEntryFailService importEntryFailService;
     @Autowired
     private ImportEntryService importEntryService;
+    @Autowired
+    private ImportEntryEmailService importEntryEmailService;
 
     public AdminImportCtrl(HttpServletRequest req,
                            HttpServletResponse res) {
@@ -47,9 +53,9 @@ public class AdminImportCtrl extends ABaseCtrl {
 
     @GetMapping(value = "/find-all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponseDto<PaginationRespDto<ImportEntryDto>>> findAll(@RequestParam(value = "categoryId", required = false) UUID categoryId,
-                                                                                          @RequestParam(value = "emailStatus", required = false) String emailStatus,
-                                                                                          @RequestParam("page") int page,
-                                                                                          @RequestParam("limit") int limit) {
+                                                                                      @RequestParam(value = "emailStatus", required = false) String emailStatus,
+                                                                                      @RequestParam("page") int page,
+                                                                                      @RequestParam("limit") int limit) {
         PaginationRespDto<ImportEntryDto> result = null;
         try {
             this.log.info("Request : {} {} {} {}", categoryId, emailStatus, page, limit);
@@ -107,13 +113,41 @@ public class AdminImportCtrl extends ABaseCtrl {
         return ResponseEntity.accepted().body(responseSuccess(new ImportJobSubmitRespDto(jobId)));
     }
 
-    @GetMapping(value = "/jobs/{jobId}")
-    public ResponseEntity<BaseResponseDto<ImportJobStatusRespDto>> getJobStatus(@PathVariable("jobId") String jobId) {
-        ImportJobStatusRespDto st = importExcelJobService.getStatus(jobId);
-        if (st == null) {
-            return ResponseEntity.status(404).body(responseError(404, "Job not found", null));
+    /**
+     * Re-check: ส่งอีเมลซ้ำให้รายการที่ emailStatus = PENDING/FAILED (กันซ้ำด้วย lock + skip SENT)
+     * GET /admin/import/resend-email?limit=100
+     */
+    @GetMapping(value = "/resend-email", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BaseResponseDto<Integer>> resendEmail(@RequestParam(value = "limit", required = false, defaultValue = "100") int limit) {
+        int sent = importEntryEmailService.resendPendingOrFailed(limit);
+        return ResponseEntity.ok(responseSuccess(sent));
+    }
+
+    @PostMapping(value = "/{entryId}/resend", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BaseResponseDto<UUID>> resendEmail(@PathVariable("entryId") UUID entryId) {
+        try {
+            this.log.info("Request : {}", entryId);
+            importEntryEmailService.sendAfterImport(entryId);
+
+            ImportEntryDto dto = this.importEntryService.findByEntryId(entryId);
+            if (dto == null) {
+                String key = "entry.notFound";
+                throw new CustomException(this.messageUtils.getCode(key), this.messageUtils.getMessage(key), "entry");
+            } else if (StringUtils.checkNotEmpty(dto.getEmailError())) {
+                String key = "entry.notFound";
+                throw new CustomException(this.messageUtils.getCode(key), dto.getEmailError(), "entry");
+            }
+        } catch (CustomException e) {
+            e.printStackTrace();
+            this.log.error(e);
+            return new ResponseEntity<>(super.responseError(e.getCode(), e.getMessage(), null), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.log.error(e);
+            return ResponseEntity.internalServerError().body(super.responseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
         }
-        return ResponseEntity.ok(responseSuccess(st));
+
+        return ResponseEntity.ok(super.responseSuccess(entryId));
     }
 
     private UUID getAdminUserId() {

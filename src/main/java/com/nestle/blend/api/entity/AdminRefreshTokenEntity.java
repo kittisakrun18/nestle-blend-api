@@ -3,7 +3,7 @@ package com.nestle.blend.api.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -28,13 +28,13 @@ public class AdminRefreshTokenEntity {
     private String tokenHash;
 
     @Column(name = "issued_at", nullable = false)
-    private OffsetDateTime issuedAt;
+    private LocalDateTime issuedAt;
 
     @Column(name = "expires_at", nullable = false)
-    private OffsetDateTime expiresAt;
+    private LocalDateTime expiresAt;
 
     @Column(name = "revoked_at")
-    private OffsetDateTime revokedAt;
+    private LocalDateTime revokedAt;
 
     @Column(name = "created_ip", columnDefinition = "inet")
     private String createdIp;
@@ -43,5 +43,5 @@ public class AdminRefreshTokenEntity {
     private String userAgent;
 
     @Column(name = "created_at", insertable = false, updatable = false)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 }
