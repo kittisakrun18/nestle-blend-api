@@ -101,7 +101,7 @@ public class ImportEntryDao {
                 entity.setId(id);
                 entity.setCategoryId(catId);
                 entity.setCategoryName((String) map.get("category_name"));
-                entity.setSeqNo((Integer) map.get("seq_no"));
+                entity.setSeqNo((String) map.get("seq_no"));
                 entity.setFullName((String) map.get("full_name"));
                 entity.setEmail((String) map.get("email"));
                 entity.setZone((String) map.get("zone"));

@@ -12,7 +12,6 @@ import com.nestle.blend.api.repository.ImportEntryRepository;
 import com.nestle.blend.api.service.ImportEntryEmailService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +38,6 @@ public class ImportExcelJobRunner {
     private final AdminUserRepository adminUserRepository;
 
     private final ImportEntryEmailService importEntryEmailService;
-
-    @Value("${app.claim.link.ttl-hours:168}")
-    private int linkTtlHours; // default 7 days
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
@@ -138,20 +134,8 @@ public class ImportExcelJobRunner {
 						final String purchasedAtRaw = getCellString(row, 5, formatter);
 						List<String> rowErrors = new ArrayList<>();
 
-						Integer seqNo = null;
 						if (isBlank(seqNoRaw)) {
 							rowErrors.add("seqNo is required");
-						} else {
-							String cleaned = seqNoRaw.replaceAll(",", "").trim();
-							if (!cleaned.matches("\\d+")) {
-								rowErrors.add("seqNo must be numeric only (value='" + seqNoRaw + "')");
-							} else {
-								try {
-									seqNo = Integer.parseInt(cleaned);
-								} catch (Exception ex) {
-									rowErrors.add("seqNo is invalid number (value='" + seqNoRaw + "')");
-								}
-							}
 						}
 
 						if (isBlank(fullName)) {
@@ -239,7 +223,7 @@ public class ImportExcelJobRunner {
 
                         ImportEntryEntity entity = ImportEntryEntity.builder()
                                 .category(category)
-                                .seqNo(seqNo)
+                                .seqNo(seqNoRaw)
                                 .fullName(fullName.trim())
                                 .email(email.trim())
                                 .zone(zone.trim())

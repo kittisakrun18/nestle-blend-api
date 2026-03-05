@@ -15,7 +15,7 @@ public class ImportEntryDto {
     private UUID id;
     private UUID categoryId;
     private String categoryName;
-    private Integer seqNo;
+    private String seqNo;
     private String fullName;
     private String email;
     private String zone;

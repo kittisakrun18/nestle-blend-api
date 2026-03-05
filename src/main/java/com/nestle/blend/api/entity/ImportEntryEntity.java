@@ -33,7 +33,7 @@ public class ImportEntryEntity {
     private CategoryEntity category;
 
     @Column(name = "seq_no")
-    private Integer seqNo;
+    private String seqNo;
 
     @Column(name = "full_name", nullable = false)
     private String fullName;

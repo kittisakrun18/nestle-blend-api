@@ -155,7 +155,7 @@ public class ClaimSubmissionService {
                 this.helper.createCell(sheet, row, columnCount++, rs.getString("submitted_at"), style);
                 this.helper.createCell(sheet, row, columnCount++, rs.getString("category_name"), style);
                 this.helper.createCell(sheet, row, columnCount++, rs.getString("zone"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getInt("seq_no"), style);
+                this.helper.createCell(sheet, row, columnCount++, rs.getString("seq_no"), style);
                 this.helper.createCell(sheet, row, columnCount++, rs.getString("full_name"), style);
                 this.helper.createCell(sheet, row, columnCount++, rs.getString("phone"), style);
                 this.helper.createCell(sheet, row, columnCount++, rs.getString("email"), style);

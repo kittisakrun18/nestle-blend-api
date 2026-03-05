@@ -15,7 +15,7 @@ public class ClaimSubmissionDto {
     private UUID id;
     private UUID importEntryId;
     private String categoryName;
-    private Integer seqNo;
+    private String seqNo;
     private String fullName;
     private String email;
     private String phone;

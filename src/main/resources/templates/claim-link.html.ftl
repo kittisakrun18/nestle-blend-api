@@ -19,7 +19,7 @@
 
     <p style="margin-top: 40px"><b>รายละเอียดและลำดับที่นั่ง:</b></p>
     <p>
-      คุณ&nbsp;${winnerName} ลำดับเลขที่นั่ง&nbsp;${seatNo}&nbsp;&nbsp;โซน&nbsp;${zone}&nbsp;&nbsp;ช่องทางร้านค้า&nbsp;${purchaseChannel}
+      คุณ&nbsp;${winnerName} ลำดับเลขที่นั่ง&nbsp;${seatNo}&nbsp;&nbsp;โซน&nbsp;${zone}
     </p>
 
     <p>

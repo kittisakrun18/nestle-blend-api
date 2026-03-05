@@ -14,6 +14,6 @@ public class ValidateTokenRespDto {
     private UUID importEntryId;
     private String email;
     private String categoryName;
-    private Integer seqNo;
+    private String seqNo;
     private LocalDateTime expiresAt;
 }
