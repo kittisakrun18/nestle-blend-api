@@ -357,7 +357,7 @@ public class ImportExcelJobRunner {
     }
 
     private LocalDateTime mappingExpireDt() {
-        LocalDateTime result = LocalDateTime.of(2026, 3, 14, 12, 0);
+        LocalDateTime result = LocalDateTime.of(2026, 3, 14, 13, 0);
         LocalDateTime currentDt = LocalDateTime.now();
         LocalDateTime round2Dt = LocalDateTime.of(2026, 3, 13, 17, 0);
         if (currentDt.isBefore(round2Dt)) {
