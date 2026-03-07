@@ -1,5 +1,6 @@
 package com.nestle.blend.api.service.job;
 
+import com.nestle.blend.api.constant.EmailStatus;
 import com.nestle.blend.api.dto.admin.ImportJobStatusRespDto;
 import com.nestle.blend.api.entity.AdminUserEntity;
 import com.nestle.blend.api.entity.CategoryEntity;
@@ -229,7 +230,7 @@ public class ImportExcelJobRunner {
                                 .zone(zone.trim())
                                 .reward(reward.trim())
                                 .purchasedAt(purchasedAt)
-                                .emailStatus("PENDING")
+                                .emailStatus(EmailStatus.PENDING)
                                 .tokenHash(tokenHash)
                                 .issuedAt(now)
                                 .expiresAt(expires)
@@ -243,7 +244,12 @@ public class ImportExcelJobRunner {
                             try {
                                 // send mail after import (prevent duplicate via emailStatus)
                                 importEntryEmailService.sendAfterImport(saved.getId());
-                            } catch (Exception ex){}
+                            } catch (Exception ex){
+                                ex.printStackTrace();
+                                entity.setEmailStatus(EmailStatus.FAILED);
+                                entity.setEmailError(ex.getMessage());
+                                importEntryRepository.save(entity);
+                            }
                         } catch (Exception ex) {
 							// e.g. unique violation seq_no/email/token
 							importEntryFailRepository.save(ImportEntryFailEntity.builder()

@@ -85,6 +85,7 @@ public class ImportEntryEmailService {
             entry.setEmailSentAt(LocalDateTime.now());
             importEntryRepository.save(entry);
         } catch (MessagingException | IOException | TemplateException e) {
+            e.printStackTrace();
             entry.setEmailStatus(EmailStatus.FAILED);
             entry.setEmailError(safeMsg(e));
             importEntryRepository.save(entry);
