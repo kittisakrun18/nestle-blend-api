@@ -6,11 +6,10 @@ import com.nestle.blend.api.dto.PaginationRespDto;
 import com.nestle.blend.api.helper.ExcelStreamHelper;
 import com.nestle.blend.api.utils.PaginationUtils;
 import com.nestle.blend.api.utils.StringUtils;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -81,20 +80,20 @@ public class ClaimSubmissionService {
         Row row = sheet.createRow(0);
         XSSFCellStyle style = this.helper.generateCellStyleHeader(workbook, row);
 
-        this.helper.createCell(sheet, row, index++, "#", style);
-        this.helper.createCell(sheet, row, index++, "วัน-เวลาที่ทำรายการ", style);
-        this.helper.createCell(sheet, row, index++, "ร้านค้า", style);
-        this.helper.createCell(sheet, row, index++, "โซน", style);
-        this.helper.createCell(sheet, row, index++, "ลำดับที่", style);
-        this.helper.createCell(sheet, row, index++, "ชื่อ - นามสกุล", style);
-        this.helper.createCell(sheet, row, index++, "หมายเลขโทรศัพท์", style);
-        this.helper.createCell(sheet, row, index++, "อีเมล", style);
-        this.helper.createCell(sheet, row, index++, "อายุต่ำกว่า 20ปี", style);
-        this.helper.createCell(sheet, row, index++, "วันที่ซื้อสินค้า", style);
-        this.helper.createCell(sheet, row, index++, "รางวัลที่ได้รับ", style);
-        this.helper.createCell(sheet, row, index++, "สำเนาบัตร", style);
-        this.helper.createCell(sheet, row, index++, "สำเนาใบเสร็จ", style);
-        this.helper.createCell(sheet, row, index++, "สำเนาบัตรผู้ปกครอง", style);
+        this.helper.createCell(this.workbook, row, index++, "#", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "วัน-เวลาที่ทำรายการ", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "ร้านค้า", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "โซน", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "ลำดับที่", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "ชื่อ - นามสกุล", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "หมายเลขโทรศัพท์", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "อีเมล", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "อายุต่ำกว่า 20ปี", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "วันที่ซื้อสินค้า", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "รางวัลที่ได้รับ", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "สำเนาบัตรประชาชน", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "สำเนาใบเสร็จ", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "สำเนาบัตรผู้ปกครอง", style, false, null);
     }
 
     private void writeDataLines(String search, UUID categoryId, LocalDate startDate, LocalDate endDate) throws Exception {
@@ -102,6 +101,13 @@ public class ClaimSubmissionService {
 
         XSSFCellStyle style = this.helper.generateCellStyleContent(this.workbook);
         style.setAlignment(HorizontalAlignment.CENTER);
+
+        XSSFCellStyle linkStyle = this.helper.generateCellStyleContent(this.workbook);
+        Font linkFont = workbook.createFont();
+        linkFont.setUnderline(Font.U_SINGLE);
+        linkFont.setColor(IndexedColors.BLUE.getIndex());
+        linkStyle.setFont(linkFont);
+//        linkStyle.cloneStyleFrom(style);
 
         List<Object> params = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
@@ -151,20 +157,20 @@ public class ClaimSubmissionService {
                     parentFilePath = mainUrl + StringUtils.base64Encode(parentFilePath);
                 }
 
-                this.helper.createCell(sheet, row, columnCount++, no.getAndIncrement(), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("submitted_at"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("category_name"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("zone"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("seq_no"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("full_name"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("phone"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("email"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("age_u20"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("purchased_at"), style);
-                this.helper.createCell(sheet, row, columnCount++, rs.getString("reward"), style);
-                this.helper.createCell(sheet, row, columnCount++, idCardFilePath, style);
-                this.helper.createCell(sheet, row, columnCount++, receiptFilePath, style);
-                this.helper.createCell(sheet, row, columnCount++, parentFilePath, style);
+                this.helper.createCell(this.workbook, row, columnCount++, no.getAndIncrement(), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("submitted_at"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("category_name"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("zone"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("seq_no"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("full_name"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("phone"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("email"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("age_u20"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("purchased_at"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, rs.getString("reward"), style, false, null);
+                this.helper.createCell(this.workbook, row, columnCount++, "Link", linkStyle, true, idCardFilePath);
+                this.helper.createCell(this.workbook, row, columnCount++, "Link", linkStyle, true, receiptFilePath);
+                this.helper.createCell(this.workbook, row, columnCount++, StringUtils.checkNotEmpty(parentFilePath) ? "Link" : "", linkStyle, true, parentFilePath);
             }
             return null;
         });
@@ -174,15 +180,15 @@ public class ClaimSubmissionService {
         sheet.setColumnWidth(columnIndex++, 25 * 256); // วัน-เวลาที่ทำรายการ
         sheet.setColumnWidth(columnIndex++, 25 * 256); // ร้านค้า
         sheet.setColumnWidth(columnIndex++, 30 * 256); // โซน
-        sheet.setColumnWidth(columnIndex++, 15 * 256); // ลำดับที่
-        sheet.setColumnWidth(columnIndex++, 35 * 256); // ชื่อ - นามสกุล
+        sheet.setColumnWidth(columnIndex++, 20 * 256); // ลำดับที่
+        sheet.setColumnWidth(columnIndex++, 40 * 256); // ชื่อ - นามสกุล
         sheet.setColumnWidth(columnIndex++, 25 * 256); // หมายเลขโทรศัพท์
-        sheet.setColumnWidth(columnIndex++, 30 * 256); // อีเมล
+        sheet.setColumnWidth(columnIndex++, 40 * 256); // อีเมล
         sheet.setColumnWidth(columnIndex++, 20 * 256); // อายุต่ำกว่า 20ปี
         sheet.setColumnWidth(columnIndex++, 20 * 256); // วันที่ซื้อสินค้า
         sheet.setColumnWidth(columnIndex++, 40 * 256); // รางวัลที่ได้รับ
-        sheet.setColumnWidth(columnIndex++, 40 * 256); // สำเนาบัตร
-        sheet.setColumnWidth(columnIndex++, 40 * 256); // สำเนาใบเสร็จ
-        sheet.setColumnWidth(columnIndex++, 40 * 256); // สำเนาบัตรผู้ปกครอง
+        sheet.setColumnWidth(columnIndex++, 25 * 256); // สำเนาบัตร
+        sheet.setColumnWidth(columnIndex++, 25 * 256); // สำเนาใบเสร็จ
+        sheet.setColumnWidth(columnIndex++, 25 * 256); // สำเนาบัตรผู้ปกครอง
     }
 }

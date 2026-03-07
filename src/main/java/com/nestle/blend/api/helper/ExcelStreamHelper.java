@@ -1,16 +1,20 @@
 package com.nestle.blend.api.helper;
 
+import com.nestle.blend.api.utils.StringUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 
 public class ExcelStreamHelper {
 
     private String fontName = "SansSerif";
 
-    public XSSFCellStyle generateCellStyleHeader(SXSSFWorkbook workbook, Row row){
+    public XSSFCellStyle generateCellStyleHeader(SXSSFWorkbook workbook, Row row) {
         XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
         XSSFFont font = (XSSFFont) workbook.createFont();
         font.setBold(true);
@@ -27,7 +31,8 @@ public class ExcelStreamHelper {
 
         return style;
     }
-    public XSSFCellStyle generateCellStyleHeaderGr(SXSSFWorkbook workbook, Row row){
+
+    public XSSFCellStyle generateCellStyleHeaderGr(SXSSFWorkbook workbook, Row row) {
         XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
         XSSFFont font = (XSSFFont) workbook.createFont();
         font.setFontHeight(12);
@@ -51,7 +56,8 @@ public class ExcelStreamHelper {
 
         return style;
     }
-    public XSSFCellStyle generateCellStyleContentSummary(SXSSFWorkbook workbook){
+
+    public XSSFCellStyle generateCellStyleContentSummary(SXSSFWorkbook workbook) {
         XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
         XSSFFont font = (XSSFFont) workbook.createFont();
         font.setFontName(this.fontName);
@@ -60,7 +66,7 @@ public class ExcelStreamHelper {
         return style;
     }
 
-    public XSSFCellStyle generateCellStyleContent(SXSSFWorkbook workbook){
+    public XSSFCellStyle generateCellStyleContent(SXSSFWorkbook workbook) {
         XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
         XSSFFont font = (XSSFFont) workbook.createFont();
         font.setFontName(this.fontName);
@@ -70,7 +76,7 @@ public class ExcelStreamHelper {
         return style;
     }
 
-    public XSSFCellStyle generateCellStyleContent(SXSSFWorkbook workbook,int fontSize, boolean bold){
+    public XSSFCellStyle generateCellStyleContent(SXSSFWorkbook workbook, int fontSize, boolean bold) {
         XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
         XSSFFont font = (XSSFFont) workbook.createFont();
         font.setFontName(this.fontName);
@@ -96,20 +102,26 @@ public class ExcelStreamHelper {
         return styleDanger;
     }
 
-    public void createCell(Sheet sheet, Row row, int columnCount, Object value, XSSFCellStyle style) {
-//        sheet.autoSizeColumn(columnCount);
+    public void createCell(SXSSFWorkbook workbook, Row row, int columnCount, Object value, XSSFCellStyle style, boolean isLink, String linkAddress) {
         Cell cell = row.createCell(columnCount);
         if (value instanceof Integer) {
             cell.setCellValue((Integer) value);
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
-        }else {
+        } else {
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
+
+        if (isLink && StringUtils.checkNotEmpty(linkAddress)) {
+            CreationHelper creationHelper = workbook.getCreationHelper();
+            Hyperlink link = creationHelper.createHyperlink(HyperlinkType.URL);
+            link.setAddress(linkAddress);
+            cell.setHyperlink(link);
+        }
     }
 
-    public void setBorderRangeAddress(int colorIndex, CellRangeAddress rangeAddress, Sheet sheet){
+    public void setBorderRangeAddress(int colorIndex, CellRangeAddress rangeAddress, Sheet sheet) {
         RegionUtil.setBorderTop(BorderStyle.THIN, rangeAddress, sheet);
         RegionUtil.setTopBorderColor(colorIndex, rangeAddress, sheet);
         RegionUtil.setBorderRight(BorderStyle.THIN, rangeAddress, sheet);
@@ -120,25 +132,28 @@ public class ExcelStreamHelper {
         RegionUtil.setLeftBorderColor(colorIndex, rangeAddress, sheet);
     }
 
-    public XSSFColor getWhiteColor(){
+    public XSSFColor getWhiteColor() {
         XSSFColor color = new XSSFColor();
         color.setARGBHex("FFFFFF");
 
         return color;
     }
-    public XSSFColor getGreenColor(){
+
+    public XSSFColor getGreenColor() {
         XSSFColor color = new XSSFColor();
         color.setARGBHex("289595");
 
         return color;
     }
-    public XSSFColor getRedColor(){
+
+    public XSSFColor getRedColor() {
         XSSFColor color = new XSSFColor();
         color.setARGBHex("C70000");
 
         return color;
     }
-    public XSSFColor getBlackGrayColor(){
+
+    public XSSFColor getBlackGrayColor() {
         XSSFColor color = new XSSFColor();
         color.setARGBHex("434343");
 
