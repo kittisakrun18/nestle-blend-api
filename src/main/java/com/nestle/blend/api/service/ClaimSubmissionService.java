@@ -84,7 +84,7 @@ public class ClaimSubmissionService {
         this.helper.createCell(this.workbook, row, index++, "วัน-เวลาที่ทำรายการ", style, false, null);
         this.helper.createCell(this.workbook, row, index++, "ร้านค้า", style, false, null);
         this.helper.createCell(this.workbook, row, index++, "โซน", style, false, null);
-        this.helper.createCell(this.workbook, row, index++, "ลำดับที่", style, false, null);
+        this.helper.createCell(this.workbook, row, index++, "เลขที่นั่ง", style, false, null);
         this.helper.createCell(this.workbook, row, index++, "ชื่อ - นามสกุล", style, false, null);
         this.helper.createCell(this.workbook, row, index++, "หมายเลขโทรศัพท์", style, false, null);
         this.helper.createCell(this.workbook, row, index++, "อีเมล", style, false, null);
@@ -180,7 +180,7 @@ public class ClaimSubmissionService {
         sheet.setColumnWidth(columnIndex++, 25 * 256); // วัน-เวลาที่ทำรายการ
         sheet.setColumnWidth(columnIndex++, 25 * 256); // ร้านค้า
         sheet.setColumnWidth(columnIndex++, 30 * 256); // โซน
-        sheet.setColumnWidth(columnIndex++, 20 * 256); // ลำดับที่
+        sheet.setColumnWidth(columnIndex++, 20 * 256); // เลขที่นั่ง
         sheet.setColumnWidth(columnIndex++, 40 * 256); // ชื่อ - นามสกุล
         sheet.setColumnWidth(columnIndex++, 25 * 256); // หมายเลขโทรศัพท์
         sheet.setColumnWidth(columnIndex++, 40 * 256); // อีเมล
